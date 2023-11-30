@@ -1,0 +1,98 @@
+{
+    "name": "CP_ConvNeXt",
+    "n_gpu": 1,
+    "seed": 123,
+
+    "arch": {
+        "type": "sharedconvnext",
+        "args": {"num_classes":4}
+    },
+
+    "num_classes": 4,
+
+    "data_loader": {
+        "args":{
+            "dataset": "CP",
+            "data_dir": "/net/ivcfs5/mnt/data/swang/research/baseline_fine/FINE_official-master/dynamic_selection/dir_to_data/CP",
+            "batch_size": 16,
+            "shuffle": true,
+            "num_batches": 0,
+            "validation_split": 0,
+            "num_workers": 3,
+            "pin_memory": true
+        },
+        "noise":{
+            "_comments": "noise type is sym or asym",
+            "type": "asym",
+            "percent": 0.2
+        }
+    },
+
+    "optimizer": {
+        "type": "SGD",
+        "args":{
+            "lr": 0.00002,
+            "momentum": 0.9,
+            "weight_decay": 1e-3,
+            "proxy_weight_decay": 5e-2
+        }
+    },
+    
+    "train_loss": {
+        "type": "CrossEntropyLoss"
+    },
+
+    "val_loss": "CrossEntropyLoss",
+    "metrics": [
+        "metric_overall"
+    ],
+
+    "lr_scheduler": {
+        "type": "MultiStepLR",
+        "args": {
+            "milestones": [40, 80],
+            "gamma": 0.01
+        }
+    },
+
+    "estimation":{
+        "_comments": "estimation methods are: dualT, total_variation, BLTM and growing_cluster",
+        "method": "growing_cluster",
+        "BLTM":{
+            "rho": 0.1
+        }
+
+    },
+
+    "detection":{
+        "_comments": "detection methods are: FINE+K, UNICON+K, CRUST+K, SFT+K",
+        "method": "UNICON+K",
+        "every": 5,
+        "FINE+K":{
+            "zeta": 0.5
+        },
+        "UNICON+K":{
+            "d_u": 0.7,
+            "tau": 5
+        }
+    },
+
+    "trainer": {
+        "epochs": 30,
+        "warmup": 10,
+        "save_dir": "saved/",
+        "save_period": 1000,
+        "verbosity": 2,
+        "monitor": "max val_metric_overall",
+        "early_stop": 2000,
+        "tensorboard": false,
+        "mlflow": true,
+        "_comments": "train_noise_methods are: unicon, none, ours",
+        "train_noise_method": "ours",
+        "UNICON+K":{
+            "T": 0.5
+        },
+        "num_model": 1
+    }
+
+}
