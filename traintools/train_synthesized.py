@@ -60,41 +60,14 @@ def train_synthesized(parse, config: ConfigParser):
     )
 
     lr_scheduler = config.initialize("lr_scheduler", torch.optim.lr_scheduler, optimizer)
-    if config["trainer"]["num_model"] == 1:
-        trainer = SynthesizedTrainer(
+    trainer = SynthesizedTrainer(
             model,
             metrics,
             optimizer,
             config=config,
             parse=parse,
             lr_scheduler=lr_scheduler,
-        )
-    else:
-        model2 = config.initialize("arch", module_arch)
-        optimizer2 = torch.optim.SGD(
-            [
-                {"params": model2.params.base},
-                {
-                    "params": model2.params.classifier,
-                    "weight_decay": config["optimizer"]["args"]["proxy_weight_decay"],
-                },
-            ],
-            lr=config["optimizer"]["args"]["lr"],
-            momentum=config["optimizer"]["args"]["momentum"],
-            weight_decay=config["optimizer"]["args"]["weight_decay"],
-        )
-        lr_scheduler2 = config.initialize("lr_scheduler", torch.optim.lr_scheduler, optimizer2)
-        trainer = SynthesizedTrainer_2nets(
-            model,
-            model2,
-            metrics,
-            optimizer,
-            optimizer2,
-            config,
-            parse,
-            lr_scheduler=lr_scheduler,
-            lr_scheduler2=lr_scheduler2,
-        )
+    )
 
     trainer.train()
     trainer.logger.finish()

@@ -12,48 +12,7 @@ from .util import estimate_purity
 
 __all__=['fit_mixture', 'fit_mixture_bmm']
 
-
-# def fit_mixture(scores, labels, clean=False, p_threshold=0.5):
-# 	'''
-# 	Assume the distribution of scores: bimodal gaussian mixture model
-	
-# 	return clean labels
-# 	that belongs to the clean cluster by fitting the score distribution to GMM
-# 	'''
-# 	easy_labels = []
-# 	mid_labels = []
-# 	hard_labels = []
-# 	indexes = np.array(range(len(scores)))
-# 	for cls in np.unique(labels):
-# 		cls_index = indexes[labels==cls]
-# 		feats = scores[labels==cls]
-# 		feats_ = np.ravel(feats).astype(np.float).reshape(-1, 1)
-# 		gmm = GMM(n_components=3, covariance_type='full', tol=1e-6, max_iter=100)
-		
-# 		gmm.fit(feats_)
-# 		prob = gmm.predict_proba(feats_)
-# 		print("MEANS!!!!!!!!!!!!", gmm.means_)
-# 		print("PROB!!!!!!!!!!!!!!!")
-# 		print(prob)
-
-# 		# if clean:
-# 		# 	prob = prob[:,gmm.means_.argmax()]
-# 		# 	clean_labels += [cls_index[clean_idx] for clean_idx in range(len(cls_index)) if prob[clean_idx] > p_threshold] 
-# 		# else:
-# 		# 	prob = prob[:, gmm.means_.argmin()]
-# 		# 	noisy_labels = [cls_index[noisy_idx] for noisy_idx in range(len(cls_index)) if prob[noisy_idx] > p_threshold]
-# 		# 	clean_labels += list(set(cls_index) - set(noisy_labels))
-# 		prob_max = prob[:,gmm.means_.argmax()]
-# 		prob_min = prob[:, gmm.means_.argmin()]
-# 		discard_labels = [cls_index[noisy_idx] for noisy_idx in range(len(cls_index)) if prob_max[noisy_idx] > p_threshold or prob_min[noisy_idx] > p_threshold]
-# 		mid_labels += list(set(cls_index) - set(discard_labels))
-# 		easy_labels += [cls_index[clean_idx] for clean_idx in range(len(cls_index)) if prob_max[clean_idx] > p_threshold]
-# 		hard_labels += [cls_index[noisy_idx] for noisy_idx in range(len(cls_index)) if prob_min[noisy_idx] > p_threshold]
-# 		print("EASY LABELS!!!!!!!!!!!!", len(easy_labels))
-# 		print("MID LABELS!!!!!!!!!!!!", len(mid_labels))
-# 		print("HARD LABELS!!!!!!!!!!!!", len(hard_labels))
-# 		print("---------------")
-# 	return [np.array(easy_labels, dtype=np.int64), np.array(mid_labels, dtype=np.int64), np.array(hard_labels, dtype=np.int64)]
+# adapted from: https://github.com/Kthyeon/FINE_official/
 
 def fit_mixture(scores, labels, clean=False, p_threshold=0.5):
 	'''
@@ -231,64 +190,3 @@ def fine_gmm(current_features, current_labels, prev_features=None, prev_labels=N
 	output = fit_mixture(orig_label, scores)
 	return output.numpy()
 
-
-	
-
-# def same_topk(label_list, scores, p):
-	
-#     output = []
-#     for idx in range(len(np.unique(label_list))):
-#         num_inst = int(p * np.sum(label_list==idx))
-#         indexs = torch.tensor(range(50000))[label_list==idx]
-#         tmp_sort, tmp_idx = torch.sort(scores[label_list==idx], descending=False)
-#         # 못 들어간 애가 필요한거니까 이렇게!
-#         output += indexs[tmp_idx[num_inst:]].numpy().tolist()
-		
-#     return torch.tensor(output).long()
-
-# def same_kmeans(label_list, scores, p=None):
-	
-#     output = []
-#     for idx in range(len(np.unique(label_list))):
-#         indexs = torch.tensor(range(len(scores)))[label_list==idx]
-#         kmeans = cluster.KMeans(n_clusters=2, random_state=0).fit(scores[indexs].reshape(-1, 1))
-		
-#         if torch.mean(scores[indexs][kmeans.labels_==0]) < torch.mean(scores[indexs][kmeans.labels_==1]):
-#             kmeans.labels_ = 1 - kmeans.labels_
-#         output += indexs[kmeans.labels_ == 0].numpy().tolist()
-		
-#     return torch.tensor(output).long()
-		
-
-# def same_topk_index(orig_label_list, orig_out_list, prev_label_list, prev_out_list, p=None):
-	
-#     singular_dict, v_ortho_dict = get_singular_value_vector(prev_label_list, prev_out_list)
-#     for key in v_ortho_dict.keys():
-#         v_ortho_dict[key] = v_ortho_dict[key].cuda()
-		
-#     scores = same_score(v_ortho_dict, orig_out_list, orig_label_list)
-#     output = same_topk(orig_label_list, scores, p)
-#     return output.numpy()
-
-# def same_kmeans_index(orig_label_list, orig_out_list, prev_label_list, prev_out_list, p=None):
-	
-#     singular_dict, v_ortho_dict = get_singular_value_vector(prev_label_list, prev_out_list)
-#     for key in v_ortho_dict.keys():
-#         v_ortho_dict[key] = v_ortho_dict[key].cuda()
-		
-#     scores = same_score(v_ortho_dict, orig_out_list, orig_label_list)
-#     output = same_kmeans(orig_label_list, scores, p)
-#     return output.numpy()
-	
-# def compute_noisy_ratio(data_loader):
-#     isNoisy_list = np.empty((0,))
-	
-#     with tqdm(data_loader) as progress:
-#         for _, (_, label, index, label_gt) in enumerate(progress):
-#             isNoisy = label == label_gt
-#             isNoisy_list = np.concatenate((isNoisy_list, isNoisy.cpu()))
-
-#     print ('#############################')
-#     print (isNoisy_list.sum(), isNoisy_list.shape)
-#     print('purity in this dataset: {}'.format(isNoisy_list.sum() / isNoisy_list.shape))
-	

@@ -8,6 +8,7 @@ from torch.autograd import Variable
 from torch.optim.sgd import SGD
 import model.model as module_arch
 
+# adapted from: https://github.com/pipilurj/ROBOT/tree/main
 
 class MetaSGD(SGD):
     def __init__(self, net, *args, **kwargs):

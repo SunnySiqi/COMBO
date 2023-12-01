@@ -13,7 +13,7 @@
     "data_loader": {
         "args":{
             "dataset": "clothing1M",
-            "data_dir": "/net/ivcfs5/mnt/data/swang/research/baseline_fine/FINE_official-master/dynamic_selection/dir_to_data/clothing1m",
+            "data_dir": "/dir_to_data/clothing1m",
             "batch_size": 64,
             "num_imgs": 256000,
             "shuffle": true,
@@ -57,7 +57,7 @@
     },
 
     "estimation":{
-        "_comments": "estimation methods are: dualT, total_variation, BLTM and growing_cluster",
+        "_comments": "estimation methods are: dualT, total_variation, robot and growing_cluster",
         "method": "dualT",
         "BLTM":{
             "rho": 0.1
@@ -88,8 +88,8 @@
         "early_stop": 2000,
         "tensorboard": false,
         "mlflow": true,
-        "_comments": "train_noise_methods are: unicon, none, ours",
-        "train_noise_method": "ours",
+        "_comments": "train_noise_methods are: unicon, none, SSL",
+        "train_noise_method": "SSL",
         "UNICON+K":{
             "T": 0.5
         },

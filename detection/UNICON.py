@@ -8,6 +8,7 @@ import numpy as np
 from tqdm import tqdm
 # from memory_profiler import profile
 
+# adapted from: https://github.com/nazmul-karim170/UNICON-Noisy-Label
 
 # KL divergence
 # with k: dim=0; without k: dim=1

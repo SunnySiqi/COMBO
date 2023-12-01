@@ -5,6 +5,8 @@ import torch.nn.functional as F
 from typing import Optional, Callable, Tuple
 from torch.distributions import Dirichlet, Categorical
 
+# adapted from: https://github.com/YivanZhang/lio/tree/master/ex/transition-matrix
+
 default_activation = lambda t: F.softmax(t, dim=1)
 
 def diag_matrix(n: int, diagonal: float, off_diagonal: float) -> torch.Tensor:

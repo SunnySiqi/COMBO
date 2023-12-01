@@ -7,6 +7,7 @@ import numpy as np
 import pickle
 import torch.nn.functional as F
 
+# adapted from: https://github.com/a5507203/dual-t-reducing-estimation-error-for-transition-matrix-in-label-noise-learning
 
 def get_transition_matrices(model, num_cls, eval_loader, device):
 	model.eval()

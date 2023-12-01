@@ -65,85 +65,33 @@ def train_realworld(parse, config: ConfigParser):
     # 	lr=config['optimizer']['args']['lr'], momentum=config['optimizer']['args']['momentum'], weight_decay= config['optimizer']['args']['weight_decay'])
 
     lr_scheduler = config.initialize("lr_scheduler", torch.optim.lr_scheduler, optimizer)
-    if config["trainer"]["num_model"] == 1:
-        if config["data_loader"]["args"]["dataset"] == "animal10N":
-            trainer = Animal10NTrainer(
-                model,
-                metrics,
-                optimizer,
-                config=config,
-                parse=parse,
-                lr_scheduler=lr_scheduler,
-            )
-        elif config["data_loader"]["args"]["dataset"] == "clothing1M":
-            trainer = Clothing1MTrainer(
-                model,
-                metrics,
-                optimizer,
-                config=config,
-                parse=parse,
-                lr_scheduler=lr_scheduler,
-            )
-        elif config["data_loader"]["args"]["dataset"] == "CP":
-            trainer = CPTrainer(
-                model,
-                metrics,
-                optimizer,
-                config=config,
-                parse=parse,
-                lr_scheduler=lr_scheduler,
-            )
-    else:
-        if config["data_loader"]["args"]["dataset"] == "CP":
-            model2 = config.initialize("arch", module_arch)
-        else:
-            model2 = getattr(module_arch, "resnet50")(
-                pretrained=True, num_classes=config["num_classes"]
-            )
-        trainable_params = filter(lambda p: p.requires_grad, model2.parameters())
-        optimizer2 = torch.optim.SGD(
-            params=trainable_params,
-            lr=config["optimizer"]["args"]["lr"],
-            momentum=config["optimizer"]["args"]["momentum"],
-            weight_decay=config["optimizer"]["args"]["weight_decay"],
+    if config["data_loader"]["args"]["dataset"] == "animal10N":
+        trainer = Animal10NTrainer(
+            model,
+            metrics,
+            optimizer,
+            config=config,
+            parse=parse,
+            lr_scheduler=lr_scheduler,
         )
-        lr_scheduler2 = config.initialize("lr_scheduler", torch.optim.lr_scheduler, optimizer2)
-        if config["data_loader"]["args"]["dataset"] == "animal10N":
-            trainer = Animal10NTrainer_2nets(
-                model,
-                model2,
-                metrics,
-                optimizer,
-                optimizer2,
-                config,
-                parse,
-                lr_scheduler=lr_scheduler,
-                lr_scheduler2=lr_scheduler2,
-            )
-        elif config["data_loader"]["args"]["dataset"] == "clothing1M":
-            trainer = ClothingTrainer_2nets(
-                model,
-                model2,
-                metrics,
-                optimizer,
-                optimizer2,
-                config,
-                parse,
-                lr_scheduler=lr_scheduler,
-                lr_scheduler2=lr_scheduler2,
-            )
-        elif config["data_loader"]["args"]["dataset"] == "CP":
-            trainer = CPTrainer_2nets(
-                model,
-                model2,
-                metrics,
-                optimizer,
-                optimizer2,
-                config,
-                parse,
-                lr_scheduler=lr_scheduler,
-                lr_scheduler2=lr_scheduler2,
-            )
+    elif config["data_loader"]["args"]["dataset"] == "clothing1M":
+        trainer = Clothing1MTrainer(
+            model,
+            metrics,
+            optimizer,
+            config=config,
+            parse=parse,
+            lr_scheduler=lr_scheduler,
+        )
+    elif config["data_loader"]["args"]["dataset"] == "CP":
+        trainer = CPTrainer(
+            model,
+            metrics,
+            optimizer,
+            config=config,
+            parse=parse,
+            lr_scheduler=lr_scheduler,
+        )
 
     trainer.train()
     trainer.logger.finish()

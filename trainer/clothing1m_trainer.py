@@ -100,10 +100,6 @@ class Clothing1MTrainer(BaseTrainer):
             )
             self.gamma = 0.1
             self.train_criterion_tv = TVLoss()
-        elif self.estimation_method == "BLTM":
-            self.Bayesian_T_Network = None
-            self.rho = self.config["estimation"]["BLTM"]["rho"]
-            self.T_revision_layer = torch.nn.Linear(self.cls_num, self.cls_num, False)
         elif self.estimation_method == "robot":
             self.loss_name = "forward"
             self.outer_obj = "rce"
@@ -118,7 +114,7 @@ class Clothing1MTrainer(BaseTrainer):
             self.d_u = self.config["detection"]["UNICON+K"]["d_u"]
             self.tau = self.config["detection"]["UNICON+K"]["tau"]
         
-        if self.train_method == "ours":
+        if self.train_method == "SSL":
             self.train_criterion = SemiLoss()
             self.train_contrastive_criterion = SupConLoss()
         elif self.train_method == "unicon":
@@ -184,18 +180,6 @@ class Clothing1MTrainer(BaseTrainer):
                         output, label, self.gamma, self.transition, self.regularization
                     )
                     self.transition.update(output, label)
-                elif self.estimation_method == "BLTM":
-                    bayes_post = F.softmax(output, dim=1)
-                    delta = self.T_revision_layer.weight
-                    delta = delta.repeat(len(label), 1, 1)
-                    _, T = self.Bayesian_T_Network(data)  # batch_size x 10 x 10
-                    T = T.reshape(-1, self.cls_num, self.cls_num)
-                    T = F.softmax(T, dim=2)
-                    # Use norm for T-revision
-                    # T = norm(T.to(self.device) + delta.to(self.device))
-                    noisy_post = torch.bmm(bayes_post.unsqueeze(1), T).squeeze(1)
-                    log_noisy_post = torch.log(noisy_post + 1e-12)
-                    loss = nn.NLLLoss()(log_noisy_post.to(self.device), label.to(self.device))
                 elif self.estimation_method == "dualT":
                     probs = F.softmax(output, dim=1)
                     output = torch.matmul(probs, torch.tensor(self.t_m).float().to(self.device))
@@ -246,18 +230,6 @@ class Clothing1MTrainer(BaseTrainer):
                         output, label, self.gamma, self.transition, self.regularization
                     )
                     self.transition.update(output, label)
-                elif self.estimation_method == "BLTM":
-                    bayes_post = F.softmax(output, dim=1)
-                    delta = self.T_revision_layer.weight
-                    delta = delta.repeat(len(label), 1, 1)
-                    _, T = self.Bayesian_T_Network(data)  # batch_size x 10 x 10
-                    T = T.reshape(-1, self.cls_num, self.cls_num)
-                    T = F.softmax(T, dim=2)
-                    # Use norm for T-revision
-                    # T = norm(T.to(self.device) + delta.to(self.device))
-                    noisy_post = torch.bmm(bayes_post.unsqueeze(1), T).squeeze(1)
-                    log_noisy_post = torch.log(noisy_post + 1e-12)
-                    loss = nn.NLLLoss()(log_noisy_post.to(self.device), label.to(self.device))
                 else:
                     loss = torch.nn.functional.cross_entropy(output, label)
                 optimizer.zero_grad()
@@ -411,18 +383,6 @@ class Clothing1MTrainer(BaseTrainer):
                         px, label, self.gamma, self.transition, self.regularization
                     )
                     self.transition.update(px, label)
-                elif self.estimation_method == "BLTM":
-                    bayes_post = px
-                    delta = self.T_revision_layer.weight
-                    delta = delta.repeat(len(label), 1, 1)
-                    _, T = self.Bayesian_T_Network(inputs_x)  # batch_size x 10 x 10
-                    T = T.reshape(-1, self.cls_num, self.cls_num)
-                    T = F.softmax(T, dim=2)
-                    # Use norm for T-revision
-                    # T = norm(T.to(self.device) + delta.to(self.device))
-                    noisy_post = torch.bmm(bayes_post.unsqueeze(1), T).squeeze(1)
-                    log_noisy_post = torch.log(noisy_post + 1e-12)
-                    loss += nn.NLLLoss()(log_noisy_post.to(self.device), label)
 
                 ## Accumulate Loss
                 # loss_x += Lx.item()
@@ -617,7 +577,7 @@ class Clothing1MTrainer(BaseTrainer):
         if self.detection_method == "none":
             total_loss = self._train_epoch_classifer_consistent(self.model, self.optimizer, epoch)
 
-        elif self.train_method == "ours":
+        elif self.train_method == "SSL":
             total_loss = self._train_epoch_cluster_label(self.model, self.optimizer, epoch)
 
         elif self.train_method == "unicon":
@@ -961,27 +921,6 @@ class Clothing1MTrainer(BaseTrainer):
         elif self.estimation_method == "total_variation":
             source_matrix = self.transition.concentrations.cpu().detach().numpy()
             print("VT SOURCE MATRIX", source_matrix)
-            all_labels, all_features, all_indexs = self.get_feature(model)
-            all_clusterids = None
-        elif self.estimation_method == "BLTM":
-            assert epoch is not None
-            if epoch == self.config["trainer"]["warmup"] + 1:
-                distill_idxs, distilled_labels = distill_data(
-                    model, self.rho, self.eval_loader, self.device
-                )
-                distilled_loader = self.loader.run(
-                    "distill",
-                    supervised_idxs=distill_idxs,
-                    semi_supervised_idxs=[],
-                    cluster_labels=distilled_labels,
-                )
-                self.Bayesian_T_Network = train_Bayesian_T_Network(
-                    model, self.cls_num, self.device, distilled_loader
-                )
-            source_matrix = estimate_avg_Bayesian_T(
-                model, self.Bayesian_T_Network, self.eval_loader, self.device, self.cls_num
-            )
-            print("BLTM SOURCE MATRIX", source_matrix)
             all_labels, all_features, all_indexs = self.get_feature(model)
             all_clusterids = None
         elif self.estimation_method == "robot":

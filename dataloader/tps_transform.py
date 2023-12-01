@@ -1,4 +1,3 @@
-# https://github.com/chaudatascience/adaptive_interface/blob/main/datasets/tps_transform.py
 import numpy as np
 import PIL
 from PIL import Image
@@ -16,7 +15,9 @@ import matplotlib.pyplot as plt
 
 from torchvision import datasets
 
-# adapted from: https://github.com/eliahuhorwitz/DeepSIM/blob/3cc80fd334c0fc7785296bf70175110df02d4041/data/base_dataset.py#L40
+# adapted from: 
+# https://github.com/chaudatascience/adaptive_interface/blob/main/datasets/tps_transform.py
+# https://github.com/eliahuhorwitz/DeepSIM/blob/3cc80fd334c0fc7785296bf70175110df02d4041/data/base_dataset.py#L40
 # related blog: https://medium.com/@fanzongshaoxing/image-augmentation-based-on-3d-thin-plate-spline-tps-algorithm-for-ct-data-fa8b1b2a683c
 
 

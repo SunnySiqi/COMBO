@@ -6,6 +6,8 @@ from tqdm import tqdm
 from .gmm import *
 from .util import *
 
+# adapted from: https://github.com/Kthyeon/FINE_official/
+
 __all__=['get_mean_vector', 'get_singular_vector', 'cleansing', 'fine', 'fine_w_noise_source', 'extract_cleanidx']
 
 
