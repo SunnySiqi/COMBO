@@ -1,5 +1,5 @@
 # COMBO
-Implementation of the paper "A Unified Framework for Connecting Noise Modeling to Boost Noise Detection"
+Implementation of the paper "A Unified Framework for Connecting Noise Modeling to Boost Noise Detection", [[Arxiv](https://arxiv.org/abs/2312.00827)]
 
 ## Requirements
 The code has been written using Python3 (3.10.4), run `pip install -r requirements.txt` to install relevant python packages.
